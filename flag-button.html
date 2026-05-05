@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMOA KIDS - Flag Button</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ---- BUTTON ---- */
+  .flag-btn {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+  }
+
+  .flag-btn-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, #ffc000 0%, #ffd040 50%, #ffc000 100%);
+    border-radius: 60px;
+    padding: 18px 36px 18px 28px;
+    box-shadow:
+      0 8px 0 #b38600,
+      0 12px 30px rgba(255,192,0,0.5);
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .flag-btn-inner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 45%;
+    background: rgba(255,255,255,0.12);
+    border-radius: 60px 60px 0 0;
+  }
+
+  .flag-btn:hover .flag-btn-inner {
+    transform: translateY(-3px);
+    box-shadow:
+      0 11px 0 #b38600,
+      0 18px 35px rgba(255,192,0,0.6);
+  }
+
+  .flag-btn:active .flag-btn-inner {
+    transform: translateY(5px);
+    box-shadow:
+      0 3px 0 #b38600,
+      0 6px 15px rgba(255,192,0,0.3);
+  }
+
+  .btn-flag-img {
+    width: 48px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 4px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    animation: flagWave 2s ease-in-out infinite;
+  }
+
+  @keyframes flagWave {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  .btn-text-wrap { text-align: left; }
+
+  .btn-text-en {
+    font-family: 'Fredoka One', cursive;
+    font-size: 26px;
+    color: white;
+    line-height: 1.1;
+  }
+
+  .btn-text-ja {
+    font-size: 11px;
+    color: rgba(255,255,255,0.75);
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .btn-arrow {
+    font-size: 22px;
+    color: rgba(255,255,255,0.9);
+    margin-left: 4px;
+    transition: transform 0.2s;
+    font-family: 'Fredoka One', cursive;
+  }
+
+  .flag-btn:hover .btn-arrow { transform: translateX(5px); }
+
+  /* ---- PARTICLES ---- */
+  .flag-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    width: 36px;
+    height: 26px;
+    object-fit: cover;
+    border-radius: 3px;
+    animation: particleFly var(--dur) ease-out forwards;
+  }
+
+  @keyframes particleFly {
+    0%   { transform: translate(0,0) scale(0) rotate(0deg); opacity: 1; }
+    30%  { transform: translate(var(--dx1), var(--dy1)) scale(1.2) rotate(var(--r1)); opacity: 1; }
+    100% { transform: translate(var(--dx2), var(--dy2)) scale(0.5) rotate(var(--r2)); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<button class="flag-btn" id="flagBtn" onclick="handleClick()">
+  <div class="flag-btn-inner">
+    <img class="btn-flag-img" src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" alt="US Flag">
+    <div class="btn-text-wrap">
+      <div class="btn-text-en">Start！</div>
+      <div class="btn-text-ja">スタート！</div>
+    </div>
+    <span class="btn-arrow">→</span>
+  </div>
+</button>
+
+<script>
+  let isAnimating = false;
+
+  function handleClick() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    // 国旗アニメーション
+    const btn = document.getElementById('flagBtn');
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    for (let i = 0; i < 16; i++) {
+      setTimeout(() => launchFlag(cx, cy), i * 40);
+    }
+
+    // アニメーション後にGeniallyの親ページへ「次のページへ進む」を送信
+    setTimeout(() => {
+      window.parent.postMessage({ action: 'nextPage', source: 'smoaKids' }, '*');
+      isAnimating = false;
+    }, 800);
+  }
+
+  function launchFlag(cx, cy) {
+    const el = document.createElement('img');
+    el.classList.add('flag-particle');
+    el.src = 'https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg';
+    el.alt = 'US flag';
+
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 120 + Math.random() * 220;
+    const dx1 = Math.cos(angle) * speed * 0.4;
+    const dy1 = Math.sin(angle) * speed * 0.4 - 60;
+    const dx2 = Math.cos(angle) * speed;
+    const dy2 = Math.sin(angle) * speed + 80;
+    const r1 = (Math.random() - 0.5) * 180;
+    const r2 = (Math.random() - 0.5) * 360;
+    const dur = 0.7 + Math.random() * 0.5;
+
+    el.style.cssText = `
+      left: ${cx}px; top: ${cy}px;
+      --dx1: ${dx1}px; --dy1: ${dy1}px;
+      --dx2: ${dx2}px; --dy2: ${dy2}px;
+      --r1: ${r1}deg; --r2: ${r2}deg;
+      --dur: ${dur}s;
+    `;
+
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), dur * 1000 + 100);
+  }
+</script>
+</body>
+</html>
