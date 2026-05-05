@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMOA KIDS - Firework</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: transparent;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .flag-particle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    width: 48px;
+    height: 34px;
+    object-fit: cover;
+    border-radius: 3px;
+    left: 50%;
+    top: 50%;
+    opacity: 0;
+    animation: bigFirework var(--dur) cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
+    animation-delay: var(--delay);
+  }
+
+  @keyframes bigFirework {
+    0% {
+      transform: translate(-50%, -50%) scale(0) rotate(0deg);
+      opacity: 1;
+    }
+    30% { opacity: 1; }
+    60% {
+      transform: translate(calc(-50% + var(--ex)), calc(-50% + var(--ey))) scale(1.2) rotate(var(--r1));
+      opacity: 1;
+    }
+    100% {
+      transform: translate(calc(-50% + var(--ex)), calc(-50% + var(--ey2))) scale(0.7) rotate(var(--r2));
+      opacity: 0;
+    }
+  }
+</style>
+</head>
+<body>
+<script>
+  // ページが読み込まれたら自動で花火を発動
+  window.addEventListener('load', () => {
+    setTimeout(launchFirework, 300); // 0.3秒後に発動（ページ表示後）
+  });
+
+  function launchFirework() {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const count = 40;
+
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('img');
+      el.classList.add('flag-particle');
+      el.src = 'https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg';
+      el.alt = 'US flag';
+
+      const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.3;
+      const dist = (W * 0.4) + Math.random() * (W * 0.25);
+
+      const ex = Math.cos(angle) * dist;
+      const ey = Math.sin(angle) * dist;
+      const ey2 = ey + 60 + Math.random() * 80;
+
+      const r1 = (Math.random() - 0.5) * 180;
+      const r2 = r1 + (Math.random() - 0.5) * 180;
+      const dur = 2.2 + Math.random() * 0.8;
+      const delay = Math.random() * 0.3;
+
+      el.style.cssText = `
+        --ex: ${ex}px;
+        --ey: ${ey}px;
+        --ey2: ${ey2}px;
+        --r1: ${r1}deg;
+        --r2: ${r2}deg;
+        --dur: ${dur}s;
+        --delay: ${delay}s;
+      `;
+
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), (dur + delay) * 1000 + 200);
+    }
+  }
+</script>
+</body>
+</html>
